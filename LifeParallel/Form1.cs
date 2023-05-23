@@ -130,10 +130,7 @@ namespace LifeParallel
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
-            double fps = gfx.FPS;
-            fps_points.Add((float)fps);
-            if (fps_points.Count > 1000)
-                fps_points.RemoveAt(0);
+            
             if (current_field != null && UpdateField)
             {
                 Thread.Sleep(delay);
@@ -361,22 +358,6 @@ namespace LifeParallel
                 }
             }
 
-            int alive = 0;
-            for (int i = 0; i < current_field.GetLength(0); i++)
-            {
-                for (int j = 0; j < current_field.GetLength(1); j++)
-                {
-                    if (current_field[i, j] > 0)
-                        alive++;
-                }
-            }
-            alive /= (int)(current_field.GetLength(0) * current_field.GetLength(1));
-            alive *= 100;
-            alive_points.Add(alive);
-            if (alive_points.Count > 1000)
-            {
-                alive_points.RemoveAt(0);
-            }
         }
 
         List<int[,]> updated_parts = new List<int[,]>();
@@ -623,6 +604,44 @@ namespace LifeParallel
                 graphics2.Clear(System.Drawing.Color.White);
                 graphics3.Clear(System.Drawing.Color.White);
 
+                if (radioButton3.Checked)
+                {
+                    var gfx = _window.Graphics;
+                    double fps = gfx.FPS;
+                    fps_points.Add((float)fps);
+                    if (fps_points.Count > 1000)
+                        fps_points.RemoveAt(0);
+                }
+                if (radioButton4.Checked)
+                {
+                    double fps = GetFps();
+                    fps_points.Add((float)fps);
+                    if (fps_points.Count > 1000)
+                        fps_points.RemoveAt(0);
+                    avFPS.Enqueue(fps);
+                    if (avFPS.Count > 200)
+                        avFPS.Dequeue();
+                    fps = avFPS.Sum() / avFPS.Count;
+                }
+
+                float alive = 0;
+                for (int i = 0; i < current_field.GetLength(0); i++)
+                {
+                    for (int j = 0; j < current_field.GetLength(1); j++)
+                    {
+                        if (current_field[i, j] > 0)
+                            alive++;
+                    }
+                }
+                alive /= (float)(current_field.GetLength(0) * current_field.GetLength(1));
+                alive *= 100;
+                alive_points.Add(alive);
+                if (alive_points.Count > 1000)
+                {
+                    alive_points.RemoveAt(0);
+                }
+
+
                 alive_points_av.Clear();
                 for (int i = 0; i < alive_points.Count; i++)
                 {
@@ -739,14 +758,7 @@ namespace LifeParallel
                         }
                     }
                 }
-                double fps = GetFps();
-                fps_points.Add((float)fps);
-                if (fps_points.Count > 1000)
-                    fps_points.RemoveAt(0);
-                avFPS.Enqueue(fps);
-                if (avFPS.Count > 200)
-                    avFPS.Dequeue();
-                fps = avFPS.Sum() / avFPS.Count;
+                
                 //graphics.DrawString(Math.Round(fps, 2).ToString(), new System.Drawing.Font("Arial", 15), Brushes.Red, new System.Drawing.Point(10, 10));
                 if (radioButton1.Checked)
                     update_field_seq();
@@ -824,22 +836,6 @@ namespace LifeParallel
                 });
             }
 
-            float alive = 0;
-            for (int i = 0; i < current_field.GetLength(0); i++)
-            {
-                for (int j = 0; j < current_field.GetLength(1); j++)
-                {
-                    if (current_field[i, j] > 0)
-                        alive++;
-                }
-            }
-            alive /= (float)(current_field.GetLength(0) * current_field.GetLength(1));
-            alive *= 100;
-            alive_points.Add(alive);
-            if (alive_points.Count > 1000)
-            {
-                alive_points.RemoveAt(0);
-            }
         }
 
         private void button3_Click(object sender, EventArgs e)
