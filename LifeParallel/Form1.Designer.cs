@@ -50,10 +50,15 @@ namespace LifeParallel
             this.panel4 = new System.Windows.Forms.Panel();
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.panelAlive = new System.Windows.Forms.Panel();
+            this.trackBar3 = new System.Windows.Forms.TrackBar();
+            this.label3 = new System.Windows.Forms.Label();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -69,7 +74,7 @@ namespace LifeParallel
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 330);
+            this.button1.Location = new System.Drawing.Point(12, 440);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 1;
@@ -79,7 +84,7 @@ namespace LifeParallel
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(93, 330);
+            this.button2.Location = new System.Drawing.Point(93, 440);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 2;
@@ -89,7 +94,7 @@ namespace LifeParallel
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(174, 330);
+            this.button3.Location = new System.Drawing.Point(174, 440);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 3;
@@ -118,7 +123,7 @@ namespace LifeParallel
             // 
             // trackBar2
             // 
-            this.trackBar2.Location = new System.Drawing.Point(12, 79);
+            this.trackBar2.Location = new System.Drawing.Point(12, 76);
             this.trackBar2.Maximum = 100;
             this.trackBar2.Minimum = 1;
             this.trackBar2.Name = "trackBar2";
@@ -144,7 +149,7 @@ namespace LifeParallel
             // 
             this.panel2.Controls.Add(this.radioButton2);
             this.panel2.Controls.Add(this.radioButton1);
-            this.panel2.Location = new System.Drawing.Point(12, 245);
+            this.panel2.Location = new System.Drawing.Point(12, 355);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(248, 68);
             this.panel2.TabIndex = 7;
@@ -176,7 +181,7 @@ namespace LifeParallel
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(25, 111);
+            this.label1.Location = new System.Drawing.Point(25, 108);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(108, 13);
             this.label1.TabIndex = 8;
@@ -196,7 +201,7 @@ namespace LifeParallel
             this.panel3.Controls.Add(this.radioButton3);
             this.panel3.Controls.Add(this.radioButton4);
             this.panel3.Controls.Add(this.checkBox1);
-            this.panel3.Location = new System.Drawing.Point(12, 153);
+            this.panel3.Location = new System.Drawing.Point(12, 263);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(248, 77);
             this.panel3.TabIndex = 8;
@@ -228,9 +233,9 @@ namespace LifeParallel
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Location = new System.Drawing.Point(12, 374);
+            this.panel4.Location = new System.Drawing.Point(12, 481);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(237, 128);
+            this.panel4.Size = new System.Drawing.Size(248, 189);
             this.panel4.TabIndex = 10;
             // 
             // timer2
@@ -242,10 +247,56 @@ namespace LifeParallel
             // panelAlive
             // 
             this.panelAlive.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelAlive.Location = new System.Drawing.Point(12, 520);
+            this.panelAlive.Location = new System.Drawing.Point(12, 688);
             this.panelAlive.Name = "panelAlive";
-            this.panelAlive.Size = new System.Drawing.Size(237, 128);
+            this.panelAlive.Size = new System.Drawing.Size(248, 189);
             this.panelAlive.TabIndex = 11;
+            // 
+            // trackBar3
+            // 
+            this.trackBar3.Location = new System.Drawing.Point(12, 146);
+            this.trackBar3.Maximum = 50;
+            this.trackBar3.Minimum = 5;
+            this.trackBar3.Name = "trackBar3";
+            this.trackBar3.Size = new System.Drawing.Size(248, 45);
+            this.trackBar3.TabIndex = 12;
+            this.trackBar3.Value = 5;
+            this.trackBar3.Scroll += new System.EventHandler(this.trackBar3_Scroll);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(25, 178);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(78, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Размер кисти";
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(28, 197);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(210, 17);
+            this.checkBox2.TabIndex = 7;
+            this.checkBox2.Text = "Рандомизировать точки под кистью";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(28, 220);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(108, 17);
+            this.checkBox3.TabIndex = 14;
+            this.checkBox3.Text = "Вкл./выкл. звук";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
             // Form1
             // 
@@ -253,6 +304,10 @@ namespace LifeParallel
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1173, 911);
+            this.Controls.Add(this.checkBox3);
+            this.Controls.Add(this.checkBox2);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.trackBar3);
             this.Controls.Add(this.panelAlive);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
@@ -270,6 +325,8 @@ namespace LifeParallel
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Enter += new System.EventHandler(this.Form1_Enter);
+            this.Leave += new System.EventHandler(this.Form1_Leave);
             this.Move += new System.EventHandler(this.Form1_Move);
             this.Validated += new System.EventHandler(this.Form1_Validated);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
@@ -278,6 +335,7 @@ namespace LifeParallel
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -306,6 +364,10 @@ namespace LifeParallel
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.Panel panelAlive;
+        private System.Windows.Forms.TrackBar trackBar3;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.CheckBox checkBox3;
     }
 }
 

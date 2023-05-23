@@ -1,5 +1,8 @@
-﻿using GameOverlay.Drawing;
+﻿using AudioPhysics;
+using AudioPhysics.Provider;
+using GameOverlay.Drawing;
 using GameOverlay.Windows;
+using NAudio.Mixer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +22,11 @@ namespace LifeParallel
 {
     public partial class Form1 : Form
     {
-
+        public static Form1 MW = new Form1();
+        public AudioPhysics.Classi.Mixer GlobalMixer = new AudioPhysics.Classi.Mixer();
+        private static bool AttivaAggiornamento = false;
+        public bool isPlaying = false;
+        Oscillatore OCV = new Oscillatore();
         private GraphicsWindow _window;
 
         private Dictionary<string, GameOverlay.Drawing.SolidBrush> _brushes;
@@ -34,7 +41,7 @@ namespace LifeParallel
         public Form1()
         {
             InitializeComponent();
-
+            MW = this;
 
         }
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
@@ -130,7 +137,7 @@ namespace LifeParallel
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
-            
+
             if (current_field != null && UpdateField)
             {
                 Thread.Sleep(delay);
@@ -157,7 +164,7 @@ namespace LifeParallel
                 {
                     if (checkBox1.Checked)
                     {
-                        gfx.DrawRectangle(_brushes["black"], new GameOverlay.Drawing.Rectangle(20,50,20+cell_size*field_hor_count, 50+cell_size * field_vert_count), 1);
+                        gfx.DrawRectangle(_brushes["black"], new GameOverlay.Drawing.Rectangle(0, 0, cell_size * field_hor_count, cell_size * field_vert_count), 1);
                         for (int i = 0; i < field_vert_count; i++)
                         {
                             for (int j = 0; j < field_hor_count; j++)
@@ -169,7 +176,7 @@ namespace LifeParallel
                                 if (current_field[i, j] == 2)
                                 {
                                     //if(cell_size > 2)
-                                    gfx.FillRectangle(_brushes["black"], 20 + i * cell_size, 50 + j * cell_size, 20 + (i * cell_size) + cell_size, 50 + (j * cell_size) + cell_size);
+                                    gfx.FillRectangle(_brushes["black"], i * cell_size, j * cell_size, (i * cell_size) + cell_size, (j * cell_size) + cell_size);
 
                                     //graphics.FillRectangle(Brushes.Black, i * cell_size, j * cell_size, cell_size, cell_size);
                                     //else
@@ -180,7 +187,7 @@ namespace LifeParallel
                                 if (current_field[i, j] == 1)
                                 {
                                     //if(cell_size > 2)
-                                    gfx.FillRectangle(_brushes["green"], 20 + i * cell_size, 50 + j * cell_size, 20 + (i * cell_size) + cell_size, 50 + (j * cell_size) + cell_size);
+                                    gfx.FillRectangle(_brushes["green"], i * cell_size, j * cell_size, (i * cell_size) + cell_size, (j * cell_size) + cell_size);
 
                                     //graphics.FillRectangle(Brushes.Black, i * cell_size, j * cell_size, cell_size, cell_size);
                                     //else
@@ -212,7 +219,10 @@ namespace LifeParallel
         float x_div = 0.5f;
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            AttivaAggiornamento = true;
+            OCV.Prepara();
+            if(checkBox3.Checked)
+                GlobalMixer.Play();
             _brushes = new Dictionary<string, GameOverlay.Drawing.SolidBrush>();
             _fonts = new Dictionary<string, GameOverlay.Drawing.Font>();
             _images = new Dictionary<string, GameOverlay.Drawing.Image>();
@@ -222,10 +232,11 @@ namespace LifeParallel
                 PerPrimitiveAntiAliasing = true,
                 TextAntiAliasing = true
             };
+            _window = new GraphicsWindow(this.PointToScreen(panel1.Location).X, this.PointToScreen(panel1.Location).Y, panel1.Width, panel1.Height, gfx)
 
-            _window = new GraphicsWindow(this.Location.X + this.Size.Width, this.Location.Y, panel1.Width + 40, panel1.Height + 60, gfx)
+            //_window = new GraphicsWindow(this.Location.X + panel5.Width, this.Location.Y, panel1.Width, panel1.Height, gfx)
             {
-                FPS = 75,
+                FPS = 60,
                 IsTopmost = false,
                 IsVisible = true
             };
@@ -586,21 +597,164 @@ namespace LifeParallel
 
 
         Queue<double> avFPS = new Queue<double>();
-        float k = 0.1f;
+        float k = 0.5f;
         float k1 = 0.2f;
+
+        float k3 = 0.2f;
 
         static float filVal = 0;
         static float alivefilVal = 0;
+        static float soundfilVal = 0;
         float expRunningAverage(float newVal)
         {
             filVal += (newVal - filVal) * k;
             return filVal;
         }
-
+        bool randomize_points = true;
         private void timer2_Tick(object sender, EventArgs e)
         {
             if (current_field != null)
             {
+                if (manual_input)
+                {
+
+                    if (mouse_button == MouseButtons.Left)
+                    {
+                        int x = (int)(mouse_position.X / cell_size);
+                        int y = (int)(mouse_position.Y / cell_size);
+                        if (x >= 0 && y >= 0 && x < field_hor_count-1 && y < field_vert_count-1)
+                        {
+                            int i = (int)(mouse_position.X / cell_size);
+                            int j = (int)(mouse_position.Y / cell_size);
+                            int val = randomize_points ? r.Next(0, 2) : 1;
+                            while (i > 0 && i >= x - brush_radius)
+                            {
+
+                                j = y;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                                while (j > 0 && j >= y - brush_radius)
+                                {
+                                    j--;
+                                    if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                    {
+                                        val = randomize_points ? r.Next(0, 2) : 1;
+                                        prev_field[i, j] = val;
+                                        current_field[i, j] = val;
+                                    }
+                                }
+                                i--;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                            }
+
+                            i = (int)(mouse_position.X / cell_size);
+                            j = (int)(mouse_position.Y / cell_size);
+                            while (i > 0 && i >= x - brush_radius)
+                            {
+
+                                j = y;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                                while (j < field_vert_count - 1 && j <= y + brush_radius)
+                                {
+                                    j++;
+                                    if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                    {
+                                        val = randomize_points ? r.Next(0, 2) : 1;
+                                        prev_field[i, j] = val;
+                                        current_field[i, j] = val;
+                                    }
+                                }
+                                i--;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                            }
+
+                            i = (int)(mouse_position.X / cell_size);
+                            j = (int)(mouse_position.Y / cell_size);
+                            while (i < field_hor_count - 1 && i <= x + brush_radius)
+                            {
+
+                                j = y;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                                while (j < field_vert_count - 1 && j <= y + brush_radius)
+                                {
+                                    j++;
+                                    if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                    {
+                                        val = randomize_points ? r.Next(0, 2) : 1;
+                                        prev_field[i, j] = val;
+                                        current_field[i, j] = val;
+                                    }
+                                }
+                                i++;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                            }
+
+                            i = (int)(mouse_position.X / cell_size);
+                            j = (int)(mouse_position.Y / cell_size);
+                            while (i < field_hor_count - 1 && i <= x + brush_radius)
+                            {
+                                j = y;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                                while (j > 0 && j >= y - brush_radius)
+                                {
+                                    j--;
+                                    if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                    {
+                                        val = randomize_points ? r.Next(0, 2) : 1;
+                                        prev_field[i, j] = val;
+                                        current_field[i, j] = val;
+                                    }
+                                }
+                                i++;
+                                if ((i - x) * (i - x) + (j - y) * (j - y) < brush_radius * brush_radius)
+                                {
+                                    val = randomize_points ? r.Next(0, 2) : 1;
+                                    prev_field[i, j] = val;
+                                    current_field[i, j] = val;
+                                }
+                            }
+                        }
+                    }
+                    if (mouse_button == MouseButtons.Right)
+                    {
+                        { prev_field[(int)(mouse_position.X / cell_size), (int)(mouse_position.Y / cell_size)] = 0; current_field[(int)(mouse_position.X / cell_size), (int)(mouse_position.Y / cell_size)] = 0; }
+                    }
+
+                }
                 graphics2.Clear(System.Drawing.Color.White);
                 graphics3.Clear(System.Drawing.Color.White);
 
@@ -625,16 +779,27 @@ namespace LifeParallel
                 }
 
                 float alive = 0;
+                float sound = 0;
                 for (int i = 0; i < current_field.GetLength(0); i++)
                 {
                     for (int j = 0; j < current_field.GetLength(1); j++)
                     {
                         if (current_field[i, j] > 0)
                             alive++;
+                        if (current_field[i, j] == 1)
+                            sound++;
                     }
                 }
+
+                sound /= (float)(current_field.GetLength(0) * current_field.GetLength(1));
+                OCV.GS.Frequenza = expRunningAverageSound(sound) * 25000;
+                
+                //
+                //BeepSample.Beep((uint)(alive_ ), 3);
                 alive /= (float)(current_field.GetLength(0) * current_field.GetLength(1));
+                
                 alive *= 100;
+
                 alive_points.Add(alive);
                 if (alive_points.Count > 1000)
                 {
@@ -713,12 +878,18 @@ namespace LifeParallel
 
         }
 
+        private float expRunningAverageSound(float sound)
+        {
+            soundfilVal += (sound - soundfilVal) * k3;
+            return soundfilVal;
+        }
+
         private float expRunningAverageAlive(int v)
         {
             alivefilVal += (v - alivefilVal) * k1;
             return alivefilVal;
         }
-
+        int brush_radius = 5;
         private void timer1_Tick(object sender, EventArgs e)
         {
 
@@ -758,11 +929,14 @@ namespace LifeParallel
                         }
                     }
                 }
-                
+
                 //graphics.DrawString(Math.Round(fps, 2).ToString(), new System.Drawing.Font("Arial", 15), Brushes.Red, new System.Drawing.Point(10, 10));
                 if (radioButton1.Checked)
                     update_field_seq();
                 else update_field_parallel2();
+
+
+
                 //update_field_parallel();
                 //update_field_parallel2();
                 bg.Render();
@@ -844,8 +1018,8 @@ namespace LifeParallel
             FillRandom(); avFPS.Clear();
             if (_window != null)
             {
-                _window.X = this.Location.X + this.Size.Width;
-                _window.Y = this.Location.Y;
+                _window.X = this.PointToScreen(panel1.Location).X;
+                _window.Y = this.PointToScreen(panel1.Location).Y;
             }
         }
 
@@ -869,8 +1043,8 @@ namespace LifeParallel
             }
             if (_window != null)
             {
-                _window.X = this.Location.X + this.Size.Width;
-                _window.Y = this.Location.Y;
+                _window.X = this.PointToScreen(panel1.Location).X;
+                _window.Y = this.PointToScreen(panel1.Location).Y;
             }
         }
 
@@ -888,39 +1062,34 @@ namespace LifeParallel
             UpdateField = false; avFPS.Clear();
             if (_window != null)
             {
-                _window.X = this.Location.X + this.Size.Width;
-                _window.Y = this.Location.Y;
+                _window.X = this.PointToScreen(panel1.Location).X;
+                _window.Y = this.PointToScreen(panel1.Location).Y;
             }
         }
         bool manual_input = false;
+        MouseButtons mouse_button = MouseButtons.None;
+        PointF mouse_position = new PointF(-1, -1);
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
             //if (!UpdateField)
             {
                 manual_input = true;
+                mouse_button = e.Button;
+                mouse_position = e.Location;
             }
         }
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
             manual_input = false;
+            mouse_button = MouseButtons.None;
+            mouse_position = new PointF(-1, -1);
         }
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (manual_input)
-            {
-                try
-                {
-                    if (e.Button == MouseButtons.Left)
-                        prev_field[(int)(e.X / cell_size), (int)(e.Y / cell_size)] = 1;
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        prev_field[(int)(e.X / cell_size), (int)(e.Y / cell_size)] = 0;
-                    }
-                }
-                catch { }
-            }
+            mouse_button = e.Button;
+            mouse_position = e.Location;
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
@@ -941,6 +1110,7 @@ namespace LifeParallel
             cell_size = Math.Min((float)panel1.Height / field_vert_count, (float)panel1.Width / field_hor_count) * 0.98f;
             label2.Text = "Размер поля: " + trackBar1.Value;
             FillRandom(); avFPS.Clear();
+            //this.Height = (int)(field_vert_count * cell_size + 6);
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
@@ -1000,8 +1170,8 @@ namespace LifeParallel
         {
             if (_window != null)
             {
-                _window.X = this.Location.X + this.Size.Width;
-                _window.Y = this.Location.Y;
+                _window.X = this.PointToScreen(panel1.Location).X;
+                _window.Y = this.PointToScreen(panel1.Location).Y;
             }
         }
 
@@ -1018,7 +1188,7 @@ namespace LifeParallel
         {
             if (radioButton3.Checked)
             {
-                this.Width = 290;
+                //this.Width = 290;
                 if (_window.IsInitialized == false)
                 {
                     var gfx = new GameOverlay.Drawing.Graphics()
@@ -1027,10 +1197,10 @@ namespace LifeParallel
                         PerPrimitiveAntiAliasing = true,
                         TextAntiAliasing = true
                     };
-                    _window = new GraphicsWindow(this.Location.X + this.Size.Width, this.Location.Y, panel1.Width + 40, panel1.Height + 60, gfx)
+                    _window = new GraphicsWindow(this.PointToScreen(panel1.Location).X, this.PointToScreen(panel1.Location).Y, panel1.Width, panel1.Height, gfx)
                     {
                         FPS = 75,
-                        IsTopmost = false,
+                        IsTopmost = true,
                         IsVisible = true
                     };
 
@@ -1050,10 +1220,45 @@ namespace LifeParallel
                     _window.Unpause();
                 if (_window != null)
                 {
-                    _window.X = this.Location.X + this.Size.Width;
-                    _window.Y = this.Location.Y;
+                    _window.X = this.PointToScreen(panel1.Location).X;
+                    _window.Y = this.PointToScreen(panel1.Location).Y;
                 }
             }
         }
+
+        private void Form1_Leave(object sender, EventArgs e)
+        {
+            _window.IsTopmost = false;
+        }
+
+        private void Form1_Enter(object sender, EventArgs e)
+        {
+            _window.IsTopmost = true;
+        }
+
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            brush_radius = trackBar3.Value;
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            randomize_points = checkBox2.Checked;
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked)
+                GlobalMixer.Play();
+            else
+                GlobalMixer.Stop();
+        }
+    }
+    class BeepSample
+    {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool Beep(uint dwFreq, uint dwDuration);
+
+        
     }
 }
