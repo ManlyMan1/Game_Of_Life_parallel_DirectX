@@ -262,6 +262,10 @@ namespace LifeParallel
             this.trackBar3.TabIndex = 12;
             this.trackBar3.Value = 5;
             this.trackBar3.Scroll += new System.EventHandler(this.trackBar3_Scroll);
+            this.trackBar3.Enter += new System.EventHandler(this.trackBar3_Enter);
+            this.trackBar3.Leave += new System.EventHandler(this.trackBar3_Leave);
+            this.trackBar3.MouseEnter += new System.EventHandler(this.trackBar3_MouseEnter);
+            this.trackBar3.MouseLeave += new System.EventHandler(this.trackBar3_MouseLeave);
             // 
             // label3
             // 

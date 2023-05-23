@@ -197,6 +197,10 @@ namespace LifeParallel
                                 }
                             }
                         }
+                        if (drawBrushPreview)
+                        {
+                            gfx.DrawEllipse(_brushes["red"], new Ellipse(new GameOverlay.Drawing.Point(field_hor_count / 2 * cell_size, field_vert_count / 2 * cell_size), brush_radius * cell_size, brush_radius * cell_size),1);
+                        }
                     }
                     if (radioButton1.Checked)
                         update_field_seq();
@@ -928,6 +932,10 @@ namespace LifeParallel
                             }
                         }
                     }
+                    if(drawBrushPreview)
+                    {
+                        graphics.DrawEllipse(Pens.Red, field_hor_count / 2 * cell_size - brush_radius * cell_size, field_vert_count / 2 * cell_size - brush_radius * cell_size, brush_radius * cell_size * 2, brush_radius * cell_size * 2);
+                    }
                 }
 
                 //graphics.DrawString(Math.Round(fps, 2).ToString(), new System.Drawing.Font("Arial", 15), Brushes.Red, new System.Drawing.Point(10, 10));
@@ -1252,6 +1260,26 @@ namespace LifeParallel
                 GlobalMixer.Play();
             else
                 GlobalMixer.Stop();
+        }
+        bool drawBrushPreview = false;
+        private void trackBar3_Leave(object sender, EventArgs e)
+        {
+        }
+
+        private void trackBar3_Enter(object sender, EventArgs e)
+        {
+        }
+
+        private void trackBar3_MouseEnter(object sender, EventArgs e)
+        {
+
+            drawBrushPreview = true;
+        }
+
+        private void trackBar3_MouseLeave(object sender, EventArgs e)
+        {
+
+            drawBrushPreview = false;
         }
     }
     class BeepSample
