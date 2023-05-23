@@ -361,7 +361,7 @@ namespace LifeParallel
                 }
             }
 
-            float alive = 0;
+            int alive = 0;
             for (int i = 0; i < current_field.GetLength(0); i++)
             {
                 for (int j = 0; j < current_field.GetLength(1); j++)
@@ -370,7 +370,7 @@ namespace LifeParallel
                         alive++;
                 }
             }
-            alive /= (float)(current_field.GetLength(0) * current_field.GetLength(1));
+            alive /= (int)(current_field.GetLength(0) * current_field.GetLength(1));
             alive *= 100;
             alive_points.Add(alive);
             if (alive_points.Count > 1000)
@@ -605,8 +605,8 @@ namespace LifeParallel
 
 
         Queue<double> avFPS = new Queue<double>();
-        float k = 0.05f;
-        float k1 = 0.6f;
+        float k = 0.1f;
+        float k1 = 0.2f;
 
         static float filVal = 0;
         static float alivefilVal = 0;
